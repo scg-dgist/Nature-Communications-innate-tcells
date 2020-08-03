@@ -1,0 +1,97 @@
+@startuml Stcr
+
+database "10xData/Seurat"
+participant DataSets
+actor user
+participant CoreMethods
+participant PlotMethods
+participant Utils
+
+user -> CoreMethods: Load10xVDJ()
+activate CoreMethods #FFBBBB
+CoreMethods -> DataSets: Create a StcrSet
+DataSets -> "10xData/Seurat": Uses input data 
+"10xData/Seurat" -> user: Return a StcrSet
+deactivate CoreMethods #FFBBBB
+user -> CoreMethods: SetSample()
+activate CoreMethods #FFBBBB
+CoreMethods -> user: Assign sample ID
+deactivate CoreMethods #FFBBBB
+user -> CoreMethods: MergeSamples()
+activate CoreMethods #FFBBBB
+CoreMethods -> user: Merge two StcrSets
+deactivate CoreMethods #FFBBBB
+user -> CoreMethods: ImportSeurat()
+activate CoreMethods #FFBBBB
+CoreMethods -> "10xData/Seurat": Load seurat obj. to a StcrSet
+"10xData/Seurat" -> user: Return a StcrSet
+deactivate CoreMethods #FFBBBB
+
+user -> PlotMethods: PlotTCR(): TCR gene 
+activate user #AAEEEE
+activate PlotMethods #FFBBBB
+PlotMethods -> user: Return a scatter plot
+deactivate PlotMethods #FFBBBB
+deactivate user #AAEEEE
+
+user -> CoreMethods: SetVDJcountMat()
+activate user #AAEEEE
+activate CoreMethods #FFBBBB
+CoreMethods -> user: Return a matrix of (VDJ) gene expressed cell counts 
+deactivate CoreMethods #FFBBBB
+user -> PlotMethods: PlotPairUsageHeatmap(): uses two matrices of (VDJ) counts
+activate PlotMethods #FFBBBB
+PlotMethods -> user: Return a plot of PairUsageHeatmap
+deactivate PlotMethods #FFBBBB
+deactivate user #AAEEEE
+
+user -> CoreMethods: SetCDR3Mat()
+activate user #AAEEEE
+activate CoreMethods #FFBBBB
+CoreMethods -> user: return a mat_cdr3 and a major_df
+deactivate CoreMethods #FFBBBB
+user -> PlotMethods: PlotFancyChainUsage(): 
+activate Utils #FFBBBB
+PlotMethods -> Utils: ComputeFreq()
+Utils -> PlotMethods: Return a data frame of Freq
+PlotMethods -> user: Return a plot of FancyChainUsage
+deactivate Utils #FFBBBB
+deactivate user #AAEEEE
+
+user -> CoreMethods: SetCDR3PairMat()
+activate user #AAEEEE
+activate CoreMethods #FFBBBB
+CoreMethods -> user: Assign sample ID
+deactivate CoreMethods #FFBBBB
+user -> PlotMethods: PlotFrequency(): 
+activate PlotMethods #FFBBBB
+PlotMethods -> user: Return a plot of Frequency
+deactivate PlotMethods #FFBBBB
+user -> PlotMethods: PlotClonotypes(): 
+activate PlotMethods #FFBBBB
+PlotMethods -> user: Return a plot of Clonotypes
+deactivate PlotMethods #FFBBBB
+user -> PlotMethods: PlotProportionsByGene(): 
+activate Utils #FFBBBB
+PlotMethods -> Utils: ComputeFreq()
+Utils -> PlotMethods: Return a data frame of Freq
+PlotMethods -> user: Return a plot of ProportionsByGene
+deactivate Utils #FFBBBB
+user -> PlotMethods: PlotDiversity(): 
+activate Utils #FFBBBB
+PlotMethods -> Utils: ComputeShannonIndex()
+Utils -> PlotMethods: Return a value of ShannonIndex
+PlotMethods -> user: Return a plot of Diversity
+deactivate Utils #FFBBBB
+user -> PlotMethods: PlotOverlapHeatmap(): 
+activate Utils #FFBBBB
+PlotMethods -> Utils: ComputeGeomean()
+Utils -> PlotMethods: Return a matrix of geo mean
+PlotMethods -> Utils: ComputeLogFC()
+Utils -> PlotMethods: Return a matrix of Log Fold Change
+PlotMethods -> user: Return a plot of OverlapHeatmap
+deactivate Utils #FFBBBB
+deactivate user #AAEEEE
+
+
+@enduml

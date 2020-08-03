@@ -1,0 +1,31 @@
+Package: Stcr
+Type: Package
+Title: Single cell tcr analysis tool
+Version: 1.0
+Date: 2019-06-19
+Author: Eunmin Lee, Eunseo Park, JongKyung Kim
+Maintainer: Eunmin Lee <elee4472@dgist.ac.kr>
+Description: This R package analyzes and visualizes the 10x VDJ data.
+Depends:
+  R (>= 3.6)
+Imports: 
+  pheatmap,
+  RColorBrewer,
+  reshape2,
+  plyr,
+  ggplot2,
+  dplyr,
+  circlize
+Suggests: 
+  BiocStyle,
+  knitr,
+  rmarkdown,
+  testthat
+License: GPL-3
+LazyData: TRUE
+VignetteBuilder: knitr
+URL: https://github.com/eelvlee/Stcr
+BugReports: https://github.com/eelvlee/Stcr/issues
+biocViews: Software, Technology, 
+RoxygenNote: 6.1.1
+Encoding: UTF-8

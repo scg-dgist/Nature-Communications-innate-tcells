@@ -1,0 +1,131 @@
+---
+title: "How to use Stcr"
+author: "Eunmin Lee, "
+date: "`r BiocStyle::doc_date()`"
+package: "Stcr" 
+
+abstract: |
+  Description of your vignette
+vignette: |
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document
+---
+```{r, echo=FALSE, results="hide", warning=FALSE, message=FALSE}
+suppressPackageStartupMessages({
+  library(Stcr)
+})
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+# Introduction
+
+# Quick start
+contig data preperation
+
+```{r}
+data("BC9_s1_contig")
+data("BC9_s2_contig")
+rownames(BC9_s1_contig)  = BC9_s1_contig$contig_id
+rownames(BC9_s2_contig)  = BC9_s2_contig$contig_id
+# 
+BC9_s1_contig = subset(BC9_s1_contig, productive == "True")
+BC9_s2_contig = subset(BC9_s2_contig, productive == "True")
+sset_BC9_s1 <- new( 'StcrSet',
+             contig = BC9_s1_contig,
+             cellName = vector(),
+             reductions = list(),
+             ident = factor(),
+             vdjMat = list(),
+             meta.data = data.frame())
+sset_BC9_s2 <- new( 'StcrSet',
+                    contig = BC9_s2_contig,
+                    cellName = vector(),
+                    reductions = list(),
+                    ident = factor(),
+                    vdjMat = list(),
+                    meta.data = data.frame())
+```
+
+or you could load your contig file using Load10xVDJ function
+
+If you have more than one sample, you can attach their sampleID to the barcodes of the contig using SetSample function. Then these are merged to one StcrSet.
+```{r}
+sset_BC9_s1 = SetSample(sset_BC9_s1,sampleID = "s1")
+sset_BC9_s2 = SetSample(sset_BC9_s2,sampleID = "s2")
+
+sset_BC9 = MergeSamples(sset_BC9_s1, sset_BC9_s2)
+```
+
+We implemented to use a seurat object for any dimensional coordiate information of the cells and their meta.data.
+```{r}
+data("seurat_BC9")
+
+seurat_BC9 = Seurat::RenameCells(object = seurat_BC9, new.names = gsub("^s(.)_([ ACGT]*)-1","s\\1-\\2", colnames(seurat_BC9)))
+
+sset_BC9 = ImportSeurat(sset_BC9,seurat_BC9, version = "v3")
+```
+## PlotTCR
+```{r}
+sset_BC9@meta.data$target = rownames(sset_BC9@meta.data) %in% 
+  sset_BC9@contig$cellName[sset_BC9@contig$v_gene == "TRAV41"]
+PlotTCR(sset_BC9, group_by = "target", reduction = "tsne")
+```
+# SetVDJcountMat
+```{r}
+mat_AV = SetVDJcountMat(sset_BC9, chain= "TRA", v_gene = "AV")
+mat_BV = SetVDJcountMat(sset_BC9, chain= "TRB", v_gene = "BV")
+```
+
+## PlotPairUsageHeatmap
+```{r}
+PlotPairUsageHeatmap(mat_AV, mat_BV, cell_ind = names(sset_BC9@ident)[sset_BC9@ident == 0])
+```
+# SetCDR3Mat
+```{r}
+cdr3_list = SetCDR3Mat(sset_BC9, chain1 = c("TRA"), chain2 = c("TRB"))
+```
+
+## PlotFancyChainUsage
+```{r}
+PlotFancyChainUsage(cdr3_list, cellLimit = 20)
+```
+# SetCDR3PairMat
+```{r}
+cdr3pair_list = SetCDR3PairMat(sset_BC9, cdr3_list)
+```
+
+
+## PlotFrequency
+```{r}
+PlotFrequency(cdr3pair_list, ident = sset_BC9@ident,
+              chain1_v_gene = "(TRAV20|TRAV26|TRAV12)",
+              chain2_v_gene = "(TRBV9|TRBV20)")
+```
+## PlotPorportionsByGene
+```{r}
+PlotProportionsByGene(cdr3pair_list, ident = sset_BC9@ident,
+                            chain1_v_gene = "(TRAV20|TRAV26|TRAV12)",
+                            chain2_v_gene = "(TRBV9|TRBV20)")
+```
+## PlotClonotypes
+```{r}
+PlotClonotypes(cdr3pair_list, ident = sset_BC9@ident, cellLimit = 10)
+```
+## PlotDiversity
+```{r}
+PlotDiversity(cdr3pair_list, ident = sset_BC9@ident )
+```
+## PlotOverlapHeatmap
+```{r}
+PlotOverlapHeatmap(cdr3pair_list, ident = sset_BC9@ident, compute = "geomean")
+```
+
+# Session info
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```
+
+# References
